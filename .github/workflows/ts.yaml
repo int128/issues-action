@@ -36,7 +36,42 @@ jobs:
       - run: yarn build
       - run: yarn package
 
-      - name: e2e-test
+      # e2e-test
+      - uses: actions/github-script@v4
+        id: list-open-pulls
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.graphql(`
+              query ($owner: String!, $name: String!) {
+                repository(owner: $owner, name: $name) {
+                  pullRequests(states: OPEN, orderBy: {field: UPDATED_AT, direction: DESC}, first: 10) {
+                    nodes {
+                      number
+                    }
+                  }
+                }
+              }
+            `, {
+              owner: context.repo.owner,
+              name: context.repo.repo,
+            })
+            core.info(`response = ${JSON.stringify(response, undefined, 2)}`)
+            return response.repository.pullRequests.nodes.map((node) => node.number)
+      - name: e2e-test / add-labels
         uses: ./
         with:
-          name: foo
+          issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
+          add-labels: e2e-test
+      - name: e2e-test / remove-labels
+        uses: ./
+        with:
+          issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
+          remove-labels: e2e-test
+      - name: e2e-test / post-comment
+        if: github.event_name == 'pull_request'
+        uses: ./
+        with:
+          issue-numbers: ${{ github.event.pull_request.number }}
+          post-comment: |
+            :white_check_mark: e2e-test has passed
