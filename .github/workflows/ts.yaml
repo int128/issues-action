@@ -68,6 +68,11 @@ jobs:
         with:
           issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
           remove-labels: e2e-test
+      - name: e2e-test / remove-labels ignores a label which is not attached
+        uses: ./
+        with:
+          issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
+          remove-labels: e2e-test
       - name: e2e-test / post-comment
         if: github.event_name == 'pull_request'
         uses: ./
