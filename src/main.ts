@@ -1,23 +1,18 @@
 import * as core from '@actions/core'
-import { Inputs, run } from './run'
+import { run } from './run'
 
 const main = async (): Promise<void> => {
-  try {
-    await run(getInputs())
-  } catch (error) {
-    core.setFailed(error.message)
-  }
+  await run({
+    issueNumbers: parseIssueNumbers(core.getInput('issue-numbers', { required: true })),
+    addLabels: core.getMultilineInput('add-labels'),
+    removeLabels: core.getMultilineInput('remove-labels'),
+    postComment: core.getInput('post-comment'),
+    token: core.getInput('token', { required: true }),
+  })
 }
 
-const getInputs = (): Inputs => ({
-  issueNumbers: parseIssueNumbers(core.getInput('issue-numbers', { required: true })),
-  addLabels: core.getMultilineInput('add-labels'),
-  removeLabels: core.getMultilineInput('remove-labels'),
-  postComment: core.getInput('post-comment'),
-  token: core.getInput('token', { required: true }),
-})
-
 export const parseIssueNumbers = (s: string): number[] => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const a = JSON.parse(s)
   if (typeof a === 'number') {
     return [a]
@@ -25,12 +20,12 @@ export const parseIssueNumbers = (s: string): number[] => {
   if (Array.isArray(a)) {
     for (const e of a) {
       if (typeof e !== 'number') {
-        throw new Error(`issue-numbers contains non-number ${e}`)
+        throw new Error(`issue-numbers contains non-number ${JSON.stringify(e)}`)
       }
     }
-    return a
+    return a as number[]
   }
   throw new Error(`issue-numbers must be a number or array of numbers in JSON format`)
 }
 
-main()
+main().catch((error) => core.setFailed(error))
