@@ -33,7 +33,7 @@ jobs:
             })
             core.info(`response = ${JSON.stringify(response, undefined, 2)}`)
             return response.repository.pullRequests.nodes.map((node) => node.number)
-      - uses: int128/issues-action@v1
+      - uses: int128/issues-action@v2
         with:
           issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
           remove-labels: deploy

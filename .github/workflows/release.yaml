@@ -27,4 +27,4 @@ jobs:
       - if: github.event_name == 'push'
         uses: ./.github/actions/release
         with:
-          tag-name: v1
+          tag-name: v2
