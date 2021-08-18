@@ -46,8 +46,8 @@ jobs:
 
 | Name | Type | Description
 |------|------|------------
-| `issue-numbers` | required | A number of issue or pull request, or an array of numbers of issues or pull requests in JSON format (e.g. `100` or `[100, 101]`)
-| `add-labels` | optional | Label name(s) to add to issues or pull requests, in multi-line format
-| `remove-labels` | optional | Label name(s) to remove from issues or pull requests, in multi-line format
+| `issue-numbers` | optional | List of issue(s) or pull request(s), in multiline string
+| `add-labels` | optional | Label name(s) to add to issues or pull requests, in multiline string
+| `remove-labels` | optional | Label name(s) to remove from issues or pull requests, in multiline string
 | `post-comment` | optional | Comment body to create into issues or pull requests
 | `token` | optional | A token for GitHub API
