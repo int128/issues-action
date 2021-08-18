@@ -40,7 +40,7 @@ jobs:
       - uses: actions/github-script@v4
         id: list-open-pulls
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
           script: |
             const response = await github.graphql(`
               query ($owner: String!, $name: String!) {
@@ -57,7 +57,7 @@ jobs:
               name: context.repo.repo,
             })
             core.info(`response = ${JSON.stringify(response, undefined, 2)}`)
-            return response.repository.pullRequests.nodes.map((node) => node.number)
+            return response.repository.pullRequests.nodes.map((e) => e.number).join('\n')
       - name: e2e-test / add-labels
         uses: ./
         with:
