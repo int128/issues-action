@@ -20,4 +20,4 @@ export const parseIssueNumbers = (a: string[]): number[] =>
     return n
   })
 
-main().catch((error) => core.setFailed(error))
+main().catch((e) => core.setFailed(e instanceof Error ? e.message : JSON.stringify(e)))
