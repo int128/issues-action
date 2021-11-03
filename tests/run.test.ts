@@ -8,6 +8,9 @@ const octokitMock = {
       removeLabel: jest.fn(),
       createComment: jest.fn(),
     },
+    repos: {
+      listPullRequestsAssociatedWithCommit: jest.fn(),
+    },
   },
 }
 jest.mock('@actions/github', () => ({
@@ -23,6 +26,7 @@ jest.mock('@actions/github', () => ({
 test('no inputs', async () => {
   await run({
     issueNumbers: [],
+    sha: '',
     addLabels: [],
     removeLabels: [],
     postComment: '',
@@ -30,10 +34,37 @@ test('no inputs', async () => {
   })
 })
 
+test('find pull request by sha', async () => {
+  octokitMock.rest.repos.listPullRequestsAssociatedWithCommit.mockResolvedValueOnce({
+    data: [{ number: 1 }],
+  })
+  octokitMock.rest.issues.createComment.mockResolvedValue({ data: [] })
+  await run({
+    issueNumbers: [],
+    sha: 'COMMIT_SHA',
+    addLabels: [],
+    removeLabels: [],
+    postComment: 'foo',
+    token: 'GITHUB_TOKEN',
+  })
+  expect(octokitMock.rest.repos.listPullRequestsAssociatedWithCommit).toBeCalledWith({
+    owner: 'int128',
+    repo: 'issues-action',
+    commit_sha: 'COMMIT_SHA',
+  })
+  expect(octokitMock.rest.issues.createComment).toBeCalledWith({
+    owner: 'int128',
+    repo: 'issues-action',
+    issue_number: 1,
+    body: 'foo',
+  })
+})
+
 test('add a label', async () => {
   octokitMock.rest.issues.addLabels.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [100],
+    sha: '',
     addLabels: ['foo'],
     removeLabels: [],
     postComment: '',
@@ -51,6 +82,7 @@ test('remove a label', async () => {
   octokitMock.rest.issues.removeLabel.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [200],
+    sha: '',
     addLabels: [],
     removeLabels: ['foo'],
     postComment: '',
@@ -70,6 +102,7 @@ test('remove non-existent label', async () => {
   )
   await run({
     issueNumbers: [200],
+    sha: '',
     addLabels: [],
     removeLabels: ['foo'],
     postComment: '',
@@ -87,6 +120,7 @@ test('post a comment', async () => {
   octokitMock.rest.issues.createComment.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [300],
+    sha: '',
     addLabels: [],
     removeLabels: [],
     postComment: 'foo',
@@ -107,6 +141,7 @@ test('http error', async () => {
   await expect(
     run({
       issueNumbers: [100],
+      sha: '',
       addLabels: ['foo'],
       removeLabels: [],
       postComment: '',

@@ -7,6 +7,7 @@ type Octokit = InstanceType<typeof GitHub>
 
 export type Inputs = {
   issueNumbers: number[]
+  sha: string
   addLabels: string[]
   removeLabels: string[]
   postComment: string
@@ -16,7 +17,19 @@ export type Inputs = {
 export const run = async (inputs: Inputs): Promise<void> => {
   const octokit = github.getOctokit(inputs.token)
   const { owner, repo } = github.context.repo
-  for (const issue_number of inputs.issueNumbers) {
+  const issueNumbers = [...inputs.issueNumbers]
+
+  if (inputs.sha) {
+    core.info(`list pull request(s) associated with ${inputs.sha}`)
+    const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
+      owner,
+      repo,
+      commit_sha: inputs.sha,
+    })
+    issueNumbers.push(...pulls.data.map((pr) => pr.number))
+  }
+
+  for (const issue_number of issueNumbers) {
     core.startGroup(`processing #${issue_number}`)
     await processIssue(octokit, {
       ...inputs,

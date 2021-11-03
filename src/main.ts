@@ -4,6 +4,7 @@ import { run } from './run'
 const main = async (): Promise<void> => {
   await run({
     issueNumbers: parseIssueNumbers(core.getMultilineInput('issue-numbers')),
+    sha: core.getInput('sha'),
     addLabels: core.getMultilineInput('add-labels'),
     removeLabels: core.getMultilineInput('remove-labels'),
     postComment: core.getInput('post-comment'),

@@ -14,6 +14,7 @@ This action accepts the following inputs:
 | Name | Default | Description
 |------|---------|------------
 | `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
+| `sha` | - | Find pull request(s) associated with a commit sha
 | `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
 | `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
 | `post-comment` | - | Comment body to create into issues or pull requests
@@ -61,4 +62,25 @@ jobs:
           remove-labels: deploy
           post-comment: |
             :zzz: This pull request has been stopped. Add `deploy` label to deploy again.
+```
+
+
+### Pull request(s) associated with a commit
+
+To post a comment to pull request(s) associated with a commit:
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    steps:
+      - uses: int128/issues-action@v2
+        with:
+          sha: ${{ github.sha }}
+          post-comment: |
+            :x: error
 ```
