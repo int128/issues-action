@@ -7,14 +7,14 @@ This is an action for the following bulk operations:
 - Remove label(s) from issues or pull requests
 
 
-## Specification
+## Getting Started
 
 This action accepts the following inputs:
 
 | Name | Default | Description
 |------|---------|------------
-| `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
 | `context` | `false` | Infer an issue or pull request(s) from the context
+| `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
 | `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
 | `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
 | `post-comment` | - | Comment body to create into issues or pull requests
@@ -22,18 +22,41 @@ This action accepts the following inputs:
 
 If `issue-numbers` is not set, this action does nothing.
 
+
+### Infer the current pull request
+
 If `context` is true, this action infers by the following rules:
 
 - On `pull_request` event, use the current pull request
 - On `issue` event, use the current issue
 - On other events, find pull request(s) associated with `github.sha`
 
+To post a comment to the current pull request:
 
-## Examples
+```yaml
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
-### Post a comment to opened pull requests
+jobs:
+  notify:
+    steps:
+      - uses: int128/issues-action@v2
+        with:
+          context: true
+          add-labels: build-error
+          post-comment: |
+            :x: something wrong
+```
 
-This example calls the action with [actions/github-script](https://github.com/actions/github-script).
+
+### Bulk operations
+
+To post a comment to opened pull requests:
 
 ```yaml
 jobs:
@@ -70,25 +93,4 @@ jobs:
             :zzz: This pull request has been stopped. Add `deploy` label to deploy again.
 ```
 
-
-### Post a comment to the current pull request
-
-```yaml
-on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-
-jobs:
-  notify:
-    steps:
-      - uses: int128/issues-action@v2
-        with:
-          context: true
-          add-labels: build-error
-          post-comment: |
-            :x: something wrong
-```
+This example calls the action with a result of [actions/github-script](https://github.com/actions/github-script).
