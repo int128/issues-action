@@ -7,12 +7,13 @@ This is an action for the following bulk operations:
 - Remove label(s) from issues or pull requests
 
 
-## Inputs
+## Getting Started
 
 This action accepts the following inputs:
 
 | Name | Default | Description
 |------|---------|------------
+| `context` | `false` | Infer an issue or pull request(s) from the context
 | `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
 | `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
 | `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
@@ -22,11 +23,40 @@ This action accepts the following inputs:
 If `issue-numbers` is not set, this action does nothing.
 
 
-## Example
+### Infer the current pull request
 
-### Post a comment to opened pull requests
+If `context` is true, this action infers by the following rules:
 
-This example calls the action with [actions/github-script](https://github.com/actions/github-script).
+- On `pull_request` event, use the current pull request
+- On `issue` event, use the current issue
+- On other events, find pull request(s) associated with `github.sha`
+
+To post a comment to the current pull request:
+
+```yaml
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    steps:
+      - uses: int128/issues-action@v2
+        with:
+          context: true
+          add-labels: build-error
+          post-comment: |
+            :x: something wrong
+```
+
+
+### Bulk operations
+
+To post a comment to opened pull requests:
 
 ```yaml
 jobs:
@@ -62,3 +92,5 @@ jobs:
           post-comment: |
             :zzz: This pull request has been stopped. Add `deploy` label to deploy again.
 ```
+
+This example calls the action with a result of [actions/github-script](https://github.com/actions/github-script).
