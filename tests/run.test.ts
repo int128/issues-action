@@ -20,13 +20,15 @@ jest.mock('@actions/github', () => ({
       owner: 'int128',
       repo: 'issues-action',
     },
+    issue: {},
+    sha: 'COMMIT_SHA',
   },
 }))
 
 test('no inputs', async () => {
   await run({
     issueNumbers: [],
-    sha: '',
+    context: false,
     addLabels: [],
     removeLabels: [],
     postComment: '',
@@ -41,7 +43,7 @@ test('find pull request by sha', async () => {
   octokitMock.rest.issues.createComment.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [],
-    sha: 'COMMIT_SHA',
+    context: true,
     addLabels: [],
     removeLabels: [],
     postComment: 'foo',
@@ -64,7 +66,7 @@ test('add a label', async () => {
   octokitMock.rest.issues.addLabels.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [100],
-    sha: '',
+    context: false,
     addLabels: ['foo'],
     removeLabels: [],
     postComment: '',
@@ -82,7 +84,7 @@ test('remove a label', async () => {
   octokitMock.rest.issues.removeLabel.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [200],
-    sha: '',
+    context: false,
     addLabels: [],
     removeLabels: ['foo'],
     postComment: '',
@@ -102,7 +104,7 @@ test('remove non-existent label', async () => {
   )
   await run({
     issueNumbers: [200],
-    sha: '',
+    context: false,
     addLabels: [],
     removeLabels: ['foo'],
     postComment: '',
@@ -120,7 +122,7 @@ test('post a comment', async () => {
   octokitMock.rest.issues.createComment.mockResolvedValue({ data: [] })
   await run({
     issueNumbers: [300],
-    sha: '',
+    context: false,
     addLabels: [],
     removeLabels: [],
     postComment: 'foo',
@@ -141,7 +143,7 @@ test('http error', async () => {
   await expect(
     run({
       issueNumbers: [100],
-      sha: '',
+      context: false,
       addLabels: ['foo'],
       removeLabels: [],
       postComment: '',

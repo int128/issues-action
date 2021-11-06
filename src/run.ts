@@ -7,7 +7,7 @@ type Octokit = InstanceType<typeof GitHub>
 
 export type Inputs = {
   issueNumbers: number[]
-  sha: string
+  context: boolean
   addLabels: string[]
   removeLabels: string[]
   postComment: string
@@ -19,14 +19,9 @@ export const run = async (inputs: Inputs): Promise<void> => {
   const { owner, repo } = github.context.repo
   const issueNumbers = [...inputs.issueNumbers]
 
-  if (inputs.sha) {
-    core.info(`list pull request(s) associated with ${inputs.sha}`)
-    const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
-      owner,
-      repo,
-      commit_sha: inputs.sha,
-    })
-    issueNumbers.push(...pulls.data.map((pr) => pr.number))
+  if (inputs.context) {
+    const numbers = await inferPullRequestFromContext(octokit)
+    issueNumbers.push(...numbers)
   }
 
   for (const issue_number of issueNumbers) {
@@ -39,6 +34,23 @@ export const run = async (inputs: Inputs): Promise<void> => {
     })
     core.endGroup()
   }
+}
+
+const inferPullRequestFromContext = async (octokit: Octokit): Promise<number[]> => {
+  if (Number.isSafeInteger(github.context.issue.number)) {
+    core.info(`inferred #${github.context.issue.number} from the current context`)
+    return [github.context.issue.number]
+  }
+
+  core.info(`list pull request(s) associated with ${github.context.sha}`)
+  const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    commit_sha: github.context.sha,
+  })
+  const numbers = pulls.data.map((pr) => pr.number)
+  core.info(`inferred pull requests: ${numbers.map((n) => `#${n}`).join(`, `)}`)
+  return numbers
 }
 
 type ProcessIssueRequest = {

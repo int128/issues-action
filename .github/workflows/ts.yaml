@@ -73,10 +73,10 @@ jobs:
         with:
           issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
           remove-labels: e2e-test
+
       - name: e2e-test / post-comment
-        if: github.event_name == 'pull_request'
         uses: ./
         with:
-          issue-numbers: ${{ github.event.pull_request.number }}
+          context: true
           post-comment: |
             :white_check_mark: e2e-test has passed

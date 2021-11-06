@@ -7,14 +7,14 @@ This is an action for the following bulk operations:
 - Remove label(s) from issues or pull requests
 
 
-## Inputs
+## Specification
 
 This action accepts the following inputs:
 
 | Name | Default | Description
 |------|---------|------------
 | `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
-| `sha` | - | Find pull request(s) associated with a commit sha
+| `context` | `false` | Infer an issue or pull request(s) from the context
 | `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
 | `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
 | `post-comment` | - | Comment body to create into issues or pull requests
@@ -22,8 +22,14 @@ This action accepts the following inputs:
 
 If `issue-numbers` is not set, this action does nothing.
 
+If `context` is true, this action infers by the following rules:
 
-## Example
+- On `pull_request` event, use the current pull request
+- On `issue` event, use the current issue
+- On other events, find pull request(s) associated with `github.sha`
+
+
+## Examples
 
 ### Post a comment to opened pull requests
 
@@ -65,12 +71,13 @@ jobs:
 ```
 
 
-### Pull request(s) associated with a commit
-
-To post a comment to pull request(s) associated with a commit:
+### Post a comment to the current pull request
 
 ```yaml
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -80,7 +87,8 @@ jobs:
     steps:
       - uses: int128/issues-action@v2
         with:
-          sha: ${{ github.sha }}
+          context: true
+          add-labels: build-error
           post-comment: |
-            :x: error
+            :x: something wrong
 ```
