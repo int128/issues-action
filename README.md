@@ -1,21 +1,42 @@
 # issues-action [![ts](https://github.com/int128/issues-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/int128/issues-action/actions/workflows/ts.yaml)
 
-This is an action for bulk operation to issues and pull requests.
+This is an action for the following bulk operations:
+
+- Post a comment to issues or pull requests
+- Add label(s) to issues or pull requests
+- Remove label(s) from issues or pull requests
+
+
+## Inputs
+
+This action accepts the following inputs:
+
+| Name | Default | Description
+|------|---------|------------
+| `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
+| `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
+| `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
+| `post-comment` | - | Comment body to create into issues or pull requests
+| `token` | `github.token` | A token for GitHub API
+
+If `issue-numbers` is not set, this action does nothing.
 
 
 ## Example
 
-You can call this action with a result of [actions/github-script](https://github.com/actions/github-script) as follows:
+### Post a comment to opened pull requests
+
+This example calls the action with [actions/github-script](https://github.com/actions/github-script).
 
 ```yaml
 jobs:
-  undeploy:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v4
-        id: list-open-pulls
+      - id: list-open-pulls
+        uses: actions/github-script@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
           script: |
             const response = await github.graphql(`
               query ($owner: String!, $name: String!) {
@@ -32,22 +53,12 @@ jobs:
               name: context.repo.repo,
             })
             core.info(`response = ${JSON.stringify(response, undefined, 2)}`)
-            return response.repository.pullRequests.nodes.map((node) => node.number)
+            return response.repository.pullRequests.nodes.map((e) => e.number).join('\n')
+
       - uses: int128/issues-action@v2
         with:
           issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
           remove-labels: deploy
           post-comment: |
-            :warning: This pull request has been undeployed. Add `deploy` label to deploy again.
+            :zzz: This pull request has been stopped. Add `deploy` label to deploy again.
 ```
-
-
-## Inputs
-
-| Name | Type | Description
-|------|------|------------
-| `issue-numbers` | optional | List of issue(s) or pull request(s), in multiline string
-| `add-labels` | optional | Label name(s) to add to issues or pull requests, in multiline string
-| `remove-labels` | optional | Label name(s) to remove from issues or pull requests, in multiline string
-| `post-comment` | optional | Comment body to create into issues or pull requests
-| `token` | optional | A token for GitHub API
