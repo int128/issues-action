@@ -44,7 +44,7 @@ jobs:
           script: |
             const { data: issues } = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
-              name: context.repo.repo,
+              repo: context.repo.repo,
               state: 'open',
             })
             const pulls = issues.filter((i) => i.pull_request)
