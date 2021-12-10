@@ -42,22 +42,14 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const response = await github.graphql(`
-              query ($owner: String!, $name: String!) {
-                repository(owner: $owner, name: $name) {
-                  pullRequests(states: OPEN, orderBy: {field: UPDATED_AT, direction: DESC}, first: 10) {
-                    nodes {
-                      number
-                    }
-                  }
-                }
-              }
-            `, {
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
-              name: context.repo.repo,
+              repo: context.repo.repo,
+              state: 'open',
             })
-            core.info(`response = ${JSON.stringify(response, undefined, 2)}`)
-            return response.repository.pullRequests.nodes.map((e) => e.number).join('\n')
+            const pulls = issues.filter((i) => i.pull_request)
+            core.info(`response = ${JSON.stringify(pulls, undefined, 2)}`)
+            return pulls.map((pull) => pull.number).join('\n')
       - name: e2e-test / add-labels
         uses: ./
         with:
