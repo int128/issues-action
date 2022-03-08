@@ -37,7 +37,7 @@ jobs:
       - run: yarn package
 
       # e2e-test
-      - uses: actions/github-script@v5
+      - uses: actions/github-script@v6
         id: list-open-pulls
         with:
           result-encoding: string
