@@ -13,27 +13,36 @@ export const appendOrUpdateBody = async (octokit: Octokit, issue: Issue, content
     fetchedBody = fetchedIssue.body || ''
     core.info(`fetched the body of #${issue.number}`)
   }
-  const body = computeBody(fetchedBody, content)
+
+  const marker = `<!-- issues-action/${github.context.workflow}/${github.context.job} -->`
+  const body = computeBody(fetchedBody, content, marker)
+  if (body === fetchedBody) {
+    core.info(`issue body is already desired state`)
+    return
+  }
+
   await octokit.rest.issues.update({
     owner: issue.owner,
     repo: issue.repo,
     issue_number: issue.number,
     body,
   })
-  core.info(`updated the body of #${issue.number} as\n${fetchedBody}`)
+  core.info(`updated the body of #${issue.number}`)
 }
 
-const computeBody = (fetchedBody: string, content: string): string => {
-  const marker = `<!-- issues-action/${github.context.workflow}/${github.context.job} -->`
+export const computeBody = (fetchedBody: string, content: string, marker: string): string => {
+  // typically marker is a comment, so wrap with new lines to prevent corruption of markdown
+  marker = `\n${marker}\n`
 
   const elements = fetchedBody.split(marker)
   if (elements.length === 1) {
-    return [elements[0], marker, content, marker].join('\n')
+    return [elements[0], marker, content, marker].join('')
   }
-
-  if (elements.length === 3) {
-    return [elements[0], marker, content, marker, elements[2]].join('\n')
+  if (elements.length > 2) {
+    const first = elements[0]
+    elements.shift()
+    elements.shift()
+    return [first, marker, content, marker, ...elements].join('')
   }
-
   return fetchedBody
 }
