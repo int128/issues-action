@@ -72,3 +72,11 @@ jobs:
           context: true
           post-comment: |
             :white_check_mark: e2e-test has passed
+
+      - name: e2e-test / append-or-update-body
+        uses: ./
+        with:
+          context: true
+          append-or-update-body: |
+            ----
+            ${{ github.server_url }}/${{ github.repository }}/runs/${{ github.run_number }}

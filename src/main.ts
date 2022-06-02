@@ -8,6 +8,7 @@ const main = async (): Promise<void> => {
     addLabels: core.getMultilineInput('add-labels'),
     removeLabels: core.getMultilineInput('remove-labels'),
     postComment: core.getInput('post-comment'),
+    appendOrUpdateBody: core.getInput('append-or-update-body'),
     token: core.getInput('token', { required: true }),
   })
 }
