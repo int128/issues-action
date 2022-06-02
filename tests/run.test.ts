@@ -32,6 +32,7 @@ test('no inputs', async () => {
     addLabels: [],
     removeLabels: [],
     postComment: '',
+    appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
 })
@@ -47,6 +48,7 @@ test('find pull request by sha', async () => {
     addLabels: [],
     removeLabels: [],
     postComment: 'foo',
+    appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
   expect(octokitMock.rest.repos.listPullRequestsAssociatedWithCommit).toBeCalledWith({
@@ -70,6 +72,7 @@ test('add a label', async () => {
     addLabels: ['foo'],
     removeLabels: [],
     postComment: '',
+    appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
   expect(octokitMock.rest.issues.addLabels).toBeCalledWith({
@@ -88,6 +91,7 @@ test('remove a label', async () => {
     addLabels: [],
     removeLabels: ['foo'],
     postComment: '',
+    appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
   expect(octokitMock.rest.issues.removeLabel).toBeCalledWith({
@@ -108,6 +112,7 @@ test('remove non-existent label', async () => {
     addLabels: [],
     removeLabels: ['foo'],
     postComment: '',
+    appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
   expect(octokitMock.rest.issues.removeLabel).toBeCalledWith({
@@ -126,6 +131,7 @@ test('post a comment', async () => {
     addLabels: [],
     removeLabels: [],
     postComment: 'foo',
+    appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
   expect(octokitMock.rest.issues.createComment).toBeCalledWith({
@@ -147,6 +153,7 @@ test('http error', async () => {
       addLabels: ['foo'],
       removeLabels: [],
       postComment: '',
+      appendOrUpdateBody: '',
       token: 'GITHUB_TOKEN',
     })
   ).rejects.toThrowError()

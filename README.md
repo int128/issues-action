@@ -5,6 +5,7 @@ This is an action for the following bulk operations:
 - Post a comment to issues or pull requests
 - Add label(s) to issues or pull requests
 - Remove label(s) from issues or pull requests
+- Update the body contents of issues or pull requests
 
 
 ## Getting Started
@@ -17,7 +18,8 @@ This action accepts the following inputs:
 | `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
 | `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
 | `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
-| `post-comment` | - | Comment body to create into issues or pull requests
+| `post-comment` | - | Comment to create into issues or pull requests
+| `append-or-update-body` | - | Update body of issues or pull requests
 | `token` | `github.token` | A token for GitHub API
 
 If `issue-numbers` is not set, this action does nothing.
