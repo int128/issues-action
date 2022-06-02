@@ -27,13 +27,13 @@ const computeBody = (fetchedBody: string, content: string): string => {
   const marker = `<!-- issues-action/${github.context.workflow}/${github.context.job} -->`
 
   const elements = fetchedBody.split(marker)
-  if (elements.length === 3) {
-    return `\
-${elements[0]}
-${marker}
-${content}
-${marker}
-${elements[2]}`
+  if (elements.length === 1) {
+    return [elements[0], marker, content, marker].join('\n')
   }
+
+  if (elements.length === 3) {
+    return [elements[0], marker, content, marker, elements[2]].join('')
+  }
+
   return fetchedBody
 }
