@@ -32,7 +32,7 @@ const computeBody = (fetchedBody: string, content: string): string => {
   }
 
   if (elements.length === 3) {
-    return [elements[0], marker, content, marker, elements[2]].join('')
+    return [elements[0], marker, content, marker, elements[2]].join('\n')
   }
 
   return fetchedBody
