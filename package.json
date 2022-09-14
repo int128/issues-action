@@ -14,7 +14,7 @@
     "@actions/github": "5.0.3"
   },
   "devDependencies": {
-    "@types/jest": "29.0.1",
+    "@types/jest": "29.0.2",
     "@types/node": "16.11.58",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
@@ -26,7 +26,7 @@
     "jest-circus": "29.0.3",
     "js-yaml": "4.1.0",
     "prettier": "2.7.1",
-    "ts-jest": "29.0.0",
+    "ts-jest": "29.0.1",
     "typescript": "4.8.3"
   }
 }
