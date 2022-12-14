@@ -1,9 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { getOctokitOptions, GitHub } from '@actions/github/lib/utils'
-import * as pluginRetry from '@octokit/plugin-retry'
 import { RequestError } from '@octokit/request-error'
 import { appendOrUpdateBody } from './body'
+import { getOctokit } from './github'
 import { Issue, Octokit } from './types'
 
 export type Inputs = {
@@ -20,8 +19,7 @@ type Operations = {
 }
 
 export const run = async (inputs: Inputs): Promise<void> => {
-  const MyOctokit = GitHub.plugin(pluginRetry.retry)
-  const octokit = new MyOctokit(getOctokitOptions(inputs.token))
+  const octokit = getOctokit(inputs.token)
   const { owner, repo } = github.context.repo
   const issues = inputs.issueNumbers.map((number) => ({ owner, repo, number }))
 
