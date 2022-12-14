@@ -13,8 +13,12 @@ const octokitMock = {
     },
   },
 }
-jest.mock('@actions/github', () => ({
+
+jest.mock('../src/github', () => ({
   getOctokit: () => octokitMock,
+}))
+
+jest.mock('@actions/github', () => ({
   context: {
     repo: {
       owner: 'int128',

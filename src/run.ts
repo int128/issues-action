@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { RequestError } from '@octokit/request-error'
 import { appendOrUpdateBody } from './body'
+import { getOctokit } from './github'
 import { Issue, Octokit } from './types'
 
 export type Inputs = {
@@ -18,7 +19,7 @@ type Operations = {
 }
 
 export const run = async (inputs: Inputs): Promise<void> => {
-  const octokit = github.getOctokit(inputs.token)
+  const octokit = getOctokit(inputs.token)
   const { owner, repo } = github.context.repo
   const issues = inputs.issueNumbers.map((number) => ({ owner, repo, number }))
 
