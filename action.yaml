@@ -17,6 +17,9 @@ inputs:
   post-comment:
     description: comment body to create into issues or pull requests
     required: false
+  append-or-update-body:
+    description: update body of issues or pull requests
+    required: false
   token:
     description: a token for GitHub API
     required: true
