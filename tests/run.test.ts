@@ -108,7 +108,7 @@ test('remove a label', async () => {
 
 test('remove non-existent label', async () => {
   octokitMock.rest.issues.removeLabel.mockRejectedValue(
-    new RequestError('no label', 404, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } })
+    new RequestError('no label', 404, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } }),
   )
   await run({
     issueNumbers: [200],
@@ -148,7 +148,7 @@ test('post a comment', async () => {
 
 test('http error', async () => {
   octokitMock.rest.issues.addLabels.mockRejectedValue(
-    new RequestError('no label', 500, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } })
+    new RequestError('no label', 500, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } }),
   )
   await expect(
     run({
@@ -159,6 +159,6 @@ test('http error', async () => {
       postComment: '',
       appendOrUpdateBody: '',
       token: 'GITHUB_TOKEN',
-    })
+    }),
   ).rejects.toThrowError()
 })
