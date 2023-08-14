@@ -22,4 +22,7 @@ export const parseIssueNumbers = (a: string[]): number[] =>
     return n
   })
 
-main().catch((e) => core.setFailed(e instanceof Error ? e : String(e)))
+main().catch((e: Error) => {
+  core.setFailed(e)
+  console.error(e)
+})
