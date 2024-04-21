@@ -55,12 +55,12 @@ test('find pull request by sha', async () => {
     appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
-  expect(octokitMock.rest.repos.listPullRequestsAssociatedWithCommit).toBeCalledWith({
+  expect(octokitMock.rest.repos.listPullRequestsAssociatedWithCommit).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
     commit_sha: 'COMMIT_SHA',
   })
-  expect(octokitMock.rest.issues.createComment).toBeCalledWith({
+  expect(octokitMock.rest.issues.createComment).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
     issue_number: 1,
@@ -79,7 +79,7 @@ test('add a label', async () => {
     appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
-  expect(octokitMock.rest.issues.addLabels).toBeCalledWith({
+  expect(octokitMock.rest.issues.addLabels).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
     issue_number: 100,
@@ -98,7 +98,7 @@ test('remove a label', async () => {
     appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
-  expect(octokitMock.rest.issues.removeLabel).toBeCalledWith({
+  expect(octokitMock.rest.issues.removeLabel).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
     issue_number: 200,
@@ -119,7 +119,7 @@ test('remove non-existent label', async () => {
     appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
-  expect(octokitMock.rest.issues.removeLabel).toBeCalledWith({
+  expect(octokitMock.rest.issues.removeLabel).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
     issue_number: 200,
@@ -138,7 +138,7 @@ test('post a comment', async () => {
     appendOrUpdateBody: '',
     token: 'GITHUB_TOKEN',
   })
-  expect(octokitMock.rest.issues.createComment).toBeCalledWith({
+  expect(octokitMock.rest.issues.createComment).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
     issue_number: 300,
@@ -160,5 +160,5 @@ test('http error', async () => {
       appendOrUpdateBody: '',
       token: 'GITHUB_TOKEN',
     }),
-  ).rejects.toThrowError()
+  ).rejects.toThrow()
 })
