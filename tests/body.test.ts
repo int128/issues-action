@@ -1,4 +1,4 @@
-import { computeBody } from '../src/body'
+import { computeBody } from '../src/body.js'
 
 const marker = '<!-- marker -->'
 

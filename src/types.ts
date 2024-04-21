@@ -1,6 +1,6 @@
-import { GitHub } from '@actions/github/lib/utils'
+import * as github from '@actions/github'
 
-export type Octokit = InstanceType<typeof GitHub>
+export type Octokit = ReturnType<typeof github.getOctokit>
 
 export type Issue = {
   owner: string
