@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { RequestError } from '@octokit/request-error'
 import { appendOrUpdateBody } from './body.js'
-import { getOctokit } from './github.js'
-import { Issue, Octokit } from './types.js'
+import { getOctokit, Octokit } from './github.js'
+import { Issue } from './types.js'
+import { RequestError } from '@octokit/request-error'
 
 export type Inputs = {
   issueNumbers: number[]
