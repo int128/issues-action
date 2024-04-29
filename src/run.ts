@@ -3,7 +3,6 @@ import * as github from '@actions/github'
 import { appendOrUpdateBody } from './body.js'
 import { getOctokit, Octokit } from './github.js'
 import { Issue } from './types.js'
-import { RequestError } from '@octokit/request-error'
 
 export type Inputs = {
   issueNumbers: number[]
@@ -84,8 +83,8 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
       })
       core.info(`removed label ${labelName} from #${issue.number}: ${removed.map((label) => label.name).join(', ')}`)
     } catch (error) {
-      if (error instanceof RequestError && error.status === 404) {
-        core.warning(`could not remove label ${labelName} from #${issue.number}: ${error.message}`)
+      if (isRequestError(error) && error.status === 404) {
+        core.warning(`could not remove label ${labelName} from #${issue.number}: ${error.status} ${error.message}`)
         continue
       }
       throw error
@@ -106,3 +105,16 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
     await appendOrUpdateBody(octokit, issue, r.appendOrUpdateBody)
   }
 }
+
+type RequestError = {
+  status: number
+  message: string
+}
+
+const isRequestError = (error: unknown): error is RequestError =>
+  typeof error === 'object' &&
+  error !== null &&
+  'status' in error &&
+  typeof error.status === 'number' &&
+  'message' in error &&
+  typeof error.message === 'string'
