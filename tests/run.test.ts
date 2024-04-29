@@ -106,9 +106,7 @@ test('remove a label', async () => {
 })
 
 test('remove non-existent label', async () => {
-  octokitMock.rest.issues.removeLabel.mockRejectedValue(
-    { status: 404, message: 'Label does not exist'}
-  )
+  octokitMock.rest.issues.removeLabel.mockRejectedValue({ status: 404, message: 'Label does not exist' })
   await run({
     issueNumbers: [200],
     context: false,
