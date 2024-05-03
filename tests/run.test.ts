@@ -1,5 +1,4 @@
 import { run } from '../src/run.js'
-import { RequestError } from '@octokit/request-error'
 
 const octokitMock = {
   rest: {
@@ -107,9 +106,7 @@ test('remove a label', async () => {
 })
 
 test('remove non-existent label', async () => {
-  octokitMock.rest.issues.removeLabel.mockRejectedValue(
-    new RequestError('no label', 404, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } }),
-  )
+  octokitMock.rest.issues.removeLabel.mockRejectedValue({ status: 404, message: 'Label does not exist' })
   await run({
     issueNumbers: [200],
     context: false,
@@ -147,9 +144,7 @@ test('post a comment', async () => {
 })
 
 test('http error', async () => {
-  octokitMock.rest.issues.addLabels.mockRejectedValue(
-    new RequestError('no label', 500, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } }),
-  )
+  octokitMock.rest.issues.addLabels.mockRejectedValue({ status: 500, message: 'Internal Server Error' })
   await expect(
     run({
       issueNumbers: [100],
