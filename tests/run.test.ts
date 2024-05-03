@@ -1,3 +1,4 @@
+import { Context } from '../src/github.js'
 import { run } from '../src/run.js'
 import { RequestError } from '@octokit/request-error'
 
@@ -18,27 +19,29 @@ jest.mock('../src/github', () => ({
   getOctokit: () => octokitMock,
 }))
 
-jest.mock('@actions/github', () => ({
-  context: {
-    repo: {
-      owner: 'int128',
-      repo: 'issues-action',
-    },
-    issue: {},
-    sha: 'COMMIT_SHA',
+const githubContext: Context = {
+  repo: {
+    owner: 'int128',
+    repo: 'issues-action',
   },
-}))
+  issue: {},
+  sha: 'COMMIT_SHA',
+}
 
 test('no inputs', async () => {
-  await run({
-    issueNumbers: [],
-    context: false,
-    addLabels: [],
-    removeLabels: [],
-    postComment: '',
-    appendOrUpdateBody: '',
-    token: 'GITHUB_TOKEN',
-  })
+  await run(
+    {
+      issueNumbers: [],
+      context: false,
+      addLabels: [],
+      removeLabels: [],
+      postComment: '',
+      appendOrUpdateBody: '',
+      token: 'GITHUB_TOKEN',
+    },
+    githubContext,
+  )
+  expect(octokitMock.rest.issues.createComment).not.toHaveBeenCalled()
 })
 
 test('find pull request by sha', async () => {
@@ -46,15 +49,18 @@ test('find pull request by sha', async () => {
     data: [{ number: 1 }],
   })
   octokitMock.rest.issues.createComment.mockResolvedValue({ data: [] })
-  await run({
-    issueNumbers: [],
-    context: true,
-    addLabels: [],
-    removeLabels: [],
-    postComment: 'foo',
-    appendOrUpdateBody: '',
-    token: 'GITHUB_TOKEN',
-  })
+  await run(
+    {
+      issueNumbers: [],
+      context: true,
+      addLabels: [],
+      removeLabels: [],
+      postComment: 'foo',
+      appendOrUpdateBody: '',
+      token: 'GITHUB_TOKEN',
+    },
+    githubContext,
+  )
   expect(octokitMock.rest.repos.listPullRequestsAssociatedWithCommit).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
@@ -70,15 +76,18 @@ test('find pull request by sha', async () => {
 
 test('add a label', async () => {
   octokitMock.rest.issues.addLabels.mockResolvedValue({ data: [] })
-  await run({
-    issueNumbers: [100],
-    context: false,
-    addLabels: ['foo'],
-    removeLabels: [],
-    postComment: '',
-    appendOrUpdateBody: '',
-    token: 'GITHUB_TOKEN',
-  })
+  await run(
+    {
+      issueNumbers: [100],
+      context: false,
+      addLabels: ['foo'],
+      removeLabels: [],
+      postComment: '',
+      appendOrUpdateBody: '',
+      token: 'GITHUB_TOKEN',
+    },
+    githubContext,
+  )
   expect(octokitMock.rest.issues.addLabels).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
@@ -89,15 +98,18 @@ test('add a label', async () => {
 
 test('remove a label', async () => {
   octokitMock.rest.issues.removeLabel.mockResolvedValue({ data: [] })
-  await run({
-    issueNumbers: [200],
-    context: false,
-    addLabels: [],
-    removeLabels: ['foo'],
-    postComment: '',
-    appendOrUpdateBody: '',
-    token: 'GITHUB_TOKEN',
-  })
+  await run(
+    {
+      issueNumbers: [200],
+      context: false,
+      addLabels: [],
+      removeLabels: ['foo'],
+      postComment: '',
+      appendOrUpdateBody: '',
+      token: 'GITHUB_TOKEN',
+    },
+    githubContext,
+  )
   expect(octokitMock.rest.issues.removeLabel).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
@@ -110,15 +122,18 @@ test('remove non-existent label', async () => {
   octokitMock.rest.issues.removeLabel.mockRejectedValue(
     new RequestError('no label', 404, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } }),
   )
-  await run({
-    issueNumbers: [200],
-    context: false,
-    addLabels: [],
-    removeLabels: ['foo'],
-    postComment: '',
-    appendOrUpdateBody: '',
-    token: 'GITHUB_TOKEN',
-  })
+  await run(
+    {
+      issueNumbers: [200],
+      context: false,
+      addLabels: [],
+      removeLabels: ['foo'],
+      postComment: '',
+      appendOrUpdateBody: '',
+      token: 'GITHUB_TOKEN',
+    },
+    githubContext,
+  )
   expect(octokitMock.rest.issues.removeLabel).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
@@ -129,15 +144,18 @@ test('remove non-existent label', async () => {
 
 test('post a comment', async () => {
   octokitMock.rest.issues.createComment.mockResolvedValue({ data: [] })
-  await run({
-    issueNumbers: [300],
-    context: false,
-    addLabels: [],
-    removeLabels: [],
-    postComment: 'foo',
-    appendOrUpdateBody: '',
-    token: 'GITHUB_TOKEN',
-  })
+  await run(
+    {
+      issueNumbers: [300],
+      context: false,
+      addLabels: [],
+      removeLabels: [],
+      postComment: 'foo',
+      appendOrUpdateBody: '',
+      token: 'GITHUB_TOKEN',
+    },
+    githubContext,
+  )
   expect(octokitMock.rest.issues.createComment).toHaveBeenCalledWith({
     owner: 'int128',
     repo: 'issues-action',
@@ -151,14 +169,17 @@ test('http error', async () => {
     new RequestError('no label', 500, { request: { method: 'GET', url: 'https://api.github.com', headers: {} } }),
   )
   await expect(
-    run({
-      issueNumbers: [100],
-      context: false,
-      addLabels: ['foo'],
-      removeLabels: [],
-      postComment: '',
-      appendOrUpdateBody: '',
-      token: 'GITHUB_TOKEN',
-    }),
+    run(
+      {
+        issueNumbers: [100],
+        context: false,
+        addLabels: ['foo'],
+        removeLabels: [],
+        postComment: '',
+        appendOrUpdateBody: '',
+        token: 'GITHUB_TOKEN',
+      },
+      githubContext,
+    ),
   ).rejects.toThrow()
 })
