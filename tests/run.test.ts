@@ -41,6 +41,7 @@ test('no inputs', async () => {
     },
     githubContext,
   )
+  expect(octokitMock.rest.issues.createComment).not.toHaveBeenCalled()
 })
 
 test('find pull request by sha', async () => {

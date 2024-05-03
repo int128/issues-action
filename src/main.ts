@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { run } from './run.js'
-import { getContext, getOctokit } from './github.js'
+import { getContext } from './github.js'
 
 const main = async (): Promise<void> => {
   await run(
