@@ -15,11 +15,11 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@octokit/plugin-retry':
-        specifier: 6.0.1
-        version: 6.0.1(@octokit/core@5.1.0)
+        specifier: 7.1.1
+        version: 7.1.1(@octokit/core@5.1.0)
       '@octokit/request-error':
-        specifier: 5.1.0
-        version: 5.1.0
+        specifier: 6.1.4
+        version: 6.1.4
     devDependencies:
       '@tsconfig/node20':
         specifier: 20.1.4
@@ -426,14 +426,18 @@ packages:
     peerDependencies:
       '@octokit/core': '5'
 
-  '@octokit/plugin-retry@6.0.1':
-    resolution: {integrity: sha512-SKs+Tz9oj0g4p28qkZwl/topGcb0k0qPNX/i7vBKmDsjoeqnVfFUquqrE/O9oJY7+oLzdCtkiWSXLpLjvl6uog==}
+  '@octokit/plugin-retry@7.1.1':
+    resolution: {integrity: sha512-G9Ue+x2odcb8E1XIPhaFBnTTIrrUDfXN05iFXiqhR+SeeeDMMILcAnysOsxUpEWcQp2e5Ft397FCXTcPkiPkLw==}
     engines: {node: '>= 18'}
     peerDependencies:
-      '@octokit/core': '>=5'
+      '@octokit/core': '>=6'
 
   '@octokit/request-error@5.1.0':
     resolution: {integrity: sha512-GETXfE05J0+7H2STzekpKObFe765O5dlAKUTLNGeH+x47z7JjXHfsHKo5z21D/o/IOZTUEI6nyWyR+bZVP/n5Q==}
+    engines: {node: '>= 18'}
+
+  '@octokit/request-error@6.1.4':
+    resolution: {integrity: sha512-VpAhIUxwhWZQImo/dWAN/NpPqqojR6PSLgLYAituLM6U+ddx9hCioFGwBr5Mi+oi5CLeJkcAs3gJ0PYYzU6wUg==}
     engines: {node: '>= 18'}
 
   '@octokit/request@8.2.0':
@@ -2252,11 +2256,11 @@ snapshots:
       '@octokit/core': 5.1.0
       '@octokit/types': 12.6.0
 
-  '@octokit/plugin-retry@6.0.1(@octokit/core@5.1.0)':
+  '@octokit/plugin-retry@7.1.1(@octokit/core@5.1.0)':
     dependencies:
       '@octokit/core': 5.1.0
-      '@octokit/request-error': 5.1.0
-      '@octokit/types': 12.6.0
+      '@octokit/request-error': 6.1.4
+      '@octokit/types': 13.1.0
       bottleneck: 2.19.5
 
   '@octokit/request-error@5.1.0':
@@ -2264,6 +2268,10 @@ snapshots:
       '@octokit/types': 13.1.0
       deprecation: 2.3.1
       once: 1.4.0
+
+  '@octokit/request-error@6.1.4':
+    dependencies:
+      '@octokit/types': 13.1.0
 
   '@octokit/request@8.2.0':
     dependencies:
