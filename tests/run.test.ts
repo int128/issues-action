@@ -32,6 +32,7 @@ test('no inputs', async () => {
   await run(
     {
       issueNumbers: [],
+      searchQuery: '',
       context: false,
       addLabels: [],
       removeLabels: [],
@@ -52,6 +53,7 @@ test('find pull request by sha', async () => {
   await run(
     {
       issueNumbers: [],
+      searchQuery: '',
       context: true,
       addLabels: [],
       removeLabels: [],
@@ -79,6 +81,7 @@ test('add a label', async () => {
   await run(
     {
       issueNumbers: [100],
+      searchQuery: '',
       context: false,
       addLabels: ['foo'],
       removeLabels: [],
@@ -101,6 +104,7 @@ test('remove a label', async () => {
   await run(
     {
       issueNumbers: [200],
+      searchQuery: '',
       context: false,
       addLabels: [],
       removeLabels: ['foo'],
@@ -125,6 +129,7 @@ test('remove non-existent label', async () => {
   await run(
     {
       issueNumbers: [200],
+      searchQuery: '',
       context: false,
       addLabels: [],
       removeLabels: ['foo'],
@@ -147,6 +152,7 @@ test('post a comment', async () => {
   await run(
     {
       issueNumbers: [300],
+      searchQuery: '',
       context: false,
       addLabels: [],
       removeLabels: [],
@@ -172,6 +178,7 @@ test('http error', async () => {
     run(
       {
         issueNumbers: [100],
+        searchQuery: '',
         context: false,
         addLabels: ['foo'],
         removeLabels: [],
