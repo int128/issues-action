@@ -45,15 +45,23 @@ const searchIssues = async (octokit: Octokit, q: string): Promise<Issue[]> => {
   const { data: issues } = await octokit.rest.search.issuesAndPullRequests({
     q,
   })
-  core.info(JSON.stringify(issues, undefined, 2)) //FIXME
   return issues.items.map((issue): Issue => {
-    assert(issue.repository)
+    const { owner, repo } = parseRepositoryURL(issue.repository_url)
     return {
-      owner: issue.repository.owner.login,
-      repo: issue.repository.name,
+      owner,
+      repo,
       number: issue.number,
     }
   })
+}
+
+const parseRepositoryURL = (s: string) => {
+  const c = s.split('/')
+  const repo = c.pop()
+  const owner = c.pop()
+  assert(owner, `invalid repository URL ${s}`)
+  assert(repo, `invalid repository URL ${s}`)
+  return { owner, repo }
 }
 
 const inferPullRequestFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
