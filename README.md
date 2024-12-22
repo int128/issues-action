@@ -107,6 +107,31 @@ To search the issues of the current repository, put `repo:${{ github.repository 
 
 Note that GitHub Search API has the rate limit of 30 requests per minute.
 This action intentionally does not paginate the search result.
+If you need the pagination, use `actions/github-script` action to call the Issues API or Pull Requests API.
+For example,
+
+```yaml
+steps:
+  - name: List open pull requests
+    id: list-open
+    uses: actions/github-script@v7
+    with:
+      result-encoding: string
+      script: |
+        const pulls = await github.paginate(github.rest.pulls.list, {
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          state: 'open',
+          sort: 'updated',
+          direction: 'desc',
+          per_page: 100,
+        })
+        core.info(`Found ${pulls.length} pull request(s)`)
+        return pulls.map((e) => e.number).join('\n')
+  - uses: int128/issues-action@v2
+    with:
+      issue-numbers: ${{ steps.list-open.outputs.result }}
+```
 
 ### Infer the current pull request
 
