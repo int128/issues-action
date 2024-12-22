@@ -45,6 +45,7 @@ const searchIssues = async (octokit: Octokit, q: string): Promise<Issue[]> => {
   const { data: issues } = await octokit.rest.search.issuesAndPullRequests({
     q,
   })
+  core.info(JSON.stringify(issues, undefined, 2)) //FIXME
   return issues.items.map((issue): Issue => {
     assert(issue.repository)
     return {
