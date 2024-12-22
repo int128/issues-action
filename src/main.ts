@@ -6,6 +6,7 @@ const main = async (): Promise<void> => {
   await run(
     {
       issueNumbers: parseIssueNumbers(core.getMultilineInput('issue-numbers')),
+      searchQuery: core.getInput('search-query'),
       context: core.getBooleanInput('context', { required: true }),
       addLabels: core.getMultilineInput('add-labels'),
       removeLabels: core.getMultilineInput('remove-labels'),
