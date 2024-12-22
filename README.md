@@ -7,7 +7,6 @@ This is an action for the following operations to issues or pull requests:
 - Remove label(s)
 - Update an issue body
 
-
 ## Getting Started
 
 ### Post comment
@@ -15,12 +14,12 @@ This is an action for the following operations to issues or pull requests:
 To post a comment to the current pull request,
 
 ```yaml
-    steps:
-      - uses: int128/issues-action@v2
-        with:
-          context: true
-          post-comment: |
-            :white_check_mark: test passed
+steps:
+  - uses: int128/issues-action@v2
+    with:
+      context: true
+      post-comment: |
+        :white_check_mark: test passed
 ```
 
 For example,
@@ -30,28 +29,12 @@ For example,
 To post a comment to open pull requests,
 
 ```yaml
-    steps:
-      - name: List open pull requests
-        id: list-open
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            const pulls = await github.paginate(github.rest.pulls.list, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              sort: 'updated',
-              direction: 'desc',
-              per_page: 100,
-            })
-            core.info(`found ${pulls.length} pull request(s)`)
-            return pulls.map((e) => e.number).join('\n')
-      - uses: int128/issues-action@v2
-        with:
-          issue-numbers: ${{ steps.list-open.outputs.result }}
-          post-comment: |
-            :zzz: This pull request has been undeployed. Set the label to deploy again.
+steps:
+  - uses: int128/issues-action@v2
+    with:
+      search-query: repo:${{ github.repository }} is:pr is:open
+      post-comment: |
+        :zzz: This pull request has been undeployed. Set the label to deploy again.
 ```
 
 ### Add or remove label
@@ -59,12 +42,12 @@ To post a comment to open pull requests,
 To add and remove a label to the current pull request,
 
 ```yaml
-    steps:
-      - uses: int128/issues-action@v2
-        with:
-          context: true
-          add-labels: test-passed
-          remove-labels: test-failed
+steps:
+  - uses: int128/issues-action@v2
+    with:
+      context: true
+      add-labels: test-passed
+      remove-labels: test-failed
 ```
 
 For example,
@@ -76,13 +59,13 @@ For example,
 To append a content into the body of current pull request,
 
 ```yaml
-    steps:
-      - uses: int128/issues-action@v2
-        with:
-          context: true
-          append-or-update-body: |
-            ----
-            :octocat: Tested in ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+steps:
+  - uses: int128/issues-action@v2
+    with:
+      context: true
+      append-or-update-body: |
+        ----
+        :octocat: Tested in ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 ```
 
 For example,
@@ -91,23 +74,39 @@ For example,
 
 If the content already exists in the pull request, this action replaces it with the new one.
 
-
 ## Specification
 
 This action accepts the following inputs:
 
-| Name | Default | Description
-|------|---------|------------
-| `context` | `false` | Infer an issue or pull request(s) from the context
-| `issue-numbers` | - | List of issue(s) or pull request(s), in multiline string
-| `add-labels` | - | Label name(s) to add to issues or pull requests, in multiline string
-| `remove-labels` | - | Label name(s) to remove from issues or pull requests, in multiline string
-| `post-comment` | - | Comment to create into issues or pull requests
-| `append-or-update-body` | - | Update body of issues or pull requests
-| `token` | `github.token` | A token for GitHub API
+| Name                    | Default        | Description                                                               |
+| ----------------------- | -------------- | ------------------------------------------------------------------------- |
+| `issue-numbers`         | -              | List of issue(s) or pull request(s), in multiline string                  |
+| `search-query`          | -              | If set, search the issues by the query                                    |
+| `context`               | `false`        | If true, infer an issue or pull request(s) from the context               |
+| `add-labels`            | -              | Label name(s) to add to issues or pull requests, in multiline string      |
+| `remove-labels`         | -              | Label name(s) to remove from issues or pull requests, in multiline string |
+| `post-comment`          | -              | Comment to create into issues or pull requests                            |
+| `append-or-update-body` | -              | Update body of issues or pull requests                                    |
+| `token`                 | `github.token` | A token for GitHub API                                                    |
 
 If `issue-numbers` is not set, this action does nothing.
 
+### Search the issues
+
+If `search-query` is set, this action searches the issues.
+
+```yaml
+steps:
+  - uses: int128/issues-action@v2
+    with:
+      search-query: repo:${{ github.repository }} is:pr is:open
+```
+
+For details of the query, see [GitHub Search API](https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#search-issues-and-pull-requests).
+To search the issues of the current repository, put `repo:${{ github.repository }}` into the query.
+
+Note that GitHub Search API has the rate limit of 30 requests per minute.
+This action intentionally does not paginate the search result.
 
 ### Infer the current pull request
 

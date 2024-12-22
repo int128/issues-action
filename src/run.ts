@@ -1,9 +1,9 @@
+import assert from 'assert'
 import * as core from '@actions/core'
 import { appendOrUpdateBody } from './body.js'
 import { Context, getOctokit, Octokit } from './github.js'
 import { Issue } from './types.js'
 import { RequestError } from '@octokit/request-error'
-import assert from 'assert'
 
 export type Inputs = {
   issueNumbers: number[]
@@ -35,15 +35,17 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   }
 
   for (const issue of issues) {
-    core.startGroup(`processing #${issue.number}`)
+    core.startGroup(`Processing ${issue.owner}/${issue.repo}#${issue.number}`)
     await processIssue(octokit, inputs, issue)
     core.endGroup()
   }
 }
 
 const searchIssues = async (octokit: Octokit, q: string): Promise<Issue[]> => {
+  core.info(`Searching issues by query: ${q}`)
   const { data: issues } = await octokit.rest.search.issuesAndPullRequests({
     q,
+    per_page: 100,
   })
   return issues.items.map((issue): Issue => {
     const { owner, repo } = parseRepositoryURL(issue.repository_url)
