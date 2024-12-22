@@ -3,9 +3,11 @@ import { appendOrUpdateBody } from './body.js'
 import { Context, getOctokit, Octokit } from './github.js'
 import { Issue } from './types.js'
 import { RequestError } from '@octokit/request-error'
+import assert from 'assert'
 
 export type Inputs = {
   issueNumbers: number[]
+  searchQuery: string
   context: boolean
   token: string
 } & Operations
@@ -22,6 +24,11 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const { owner, repo } = context.repo
   const issues = inputs.issueNumbers.map((number) => ({ owner, repo, number }))
 
+  if (inputs.searchQuery) {
+    const found = await searchIssues(octokit, inputs.searchQuery)
+    issues.push(...found)
+  }
+
   if (inputs.context) {
     const pulls = await inferPullRequestFromContext(octokit, context)
     issues.push(...pulls)
@@ -32,6 +39,20 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     await processIssue(octokit, inputs, issue)
     core.endGroup()
   }
+}
+
+const searchIssues = async (octokit: Octokit, q: string): Promise<Issue[]> => {
+  const { data: issues } = await octokit.rest.search.issuesAndPullRequests({
+    q,
+  })
+  return issues.items.map((issue): Issue => {
+    assert(issue.repository)
+    return {
+      owner: issue.repository.owner.login,
+      repo: issue.repository.name,
+      number: issue.number,
+    }
+  })
 }
 
 const inferPullRequestFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
