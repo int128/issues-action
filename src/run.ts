@@ -7,6 +7,7 @@ import { RequestError } from '@octokit/request-error'
 export type Inputs = {
   issueNumbers: number[]
   context: boolean
+  dryRun: boolean
   token: string
 } & Operations
 
@@ -28,9 +29,13 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   }
 
   for (const issue of issues) {
-    core.startGroup(`processing #${issue.number}`)
-    await processIssue(octokit, inputs, issue)
-    core.endGroup()
+    if (inputs.dryRun) {
+      core.info(`dry-run: Processing ${issue.owner}/${issue.repo}#${issue.number}`)
+    } else {
+      core.startGroup(`Processing ${issue.owner}/${issue.repo}#${issue.number}`)
+      await processIssue(octokit, inputs, issue)
+      core.endGroup()
+    }
   }
 }
 
