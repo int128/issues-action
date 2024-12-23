@@ -33,6 +33,7 @@ test('no inputs', async () => {
     {
       issueNumbers: [],
       context: false,
+      dryRun: false,
       addLabels: [],
       removeLabels: [],
       postComment: '',
@@ -53,6 +54,7 @@ test('find pull request by sha', async () => {
     {
       issueNumbers: [],
       context: true,
+      dryRun: false,
       addLabels: [],
       removeLabels: [],
       postComment: 'foo',
@@ -80,6 +82,7 @@ test('add a label', async () => {
     {
       issueNumbers: [100],
       context: false,
+      dryRun: false,
       addLabels: ['foo'],
       removeLabels: [],
       postComment: '',
@@ -102,6 +105,7 @@ test('remove a label', async () => {
     {
       issueNumbers: [200],
       context: false,
+      dryRun: false,
       addLabels: [],
       removeLabels: ['foo'],
       postComment: '',
@@ -126,6 +130,7 @@ test('remove non-existent label', async () => {
     {
       issueNumbers: [200],
       context: false,
+      dryRun: false,
       addLabels: [],
       removeLabels: ['foo'],
       postComment: '',
@@ -148,6 +153,7 @@ test('post a comment', async () => {
     {
       issueNumbers: [300],
       context: false,
+      dryRun: false,
       addLabels: [],
       removeLabels: [],
       postComment: 'foo',
@@ -173,6 +179,7 @@ test('http error', async () => {
       {
         issueNumbers: [100],
         context: false,
+        dryRun: false,
         addLabels: ['foo'],
         removeLabels: [],
         postComment: '',
