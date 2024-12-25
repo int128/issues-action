@@ -107,12 +107,12 @@ This action accepts the following inputs:
 
 If `issue-numbers` is not set, this action does nothing.
 
-### Infer the current pull request
+### Infer the issues from the current context
 
-If `context` is true, this action infers by the following rules:
+If `context` is true, this action infers the issues by the following rules:
 
-- On `pull_request` event, use the current pull request
-- On `issue` event, use the current issue
+- On `pull_request` event, use the pull request of current workflow run
+- On `issue` event, use the issue of current workflow run
 - On other events, find pull request(s) associated with `github.sha`
 
 To post a comment when a pull request is created, updated or merged into main branch:

@@ -22,7 +22,7 @@ export const parseIssueNumbers = (a: string[]): number[] =>
   a.map((e) => {
     const n = Number.parseInt(e)
     if (!Number.isSafeInteger(n)) {
-      throw new Error(`"${e}" (${n}) is not issue number`)
+      throw new Error(`invalid issue number: "${e}"`)
     }
     return n
   })

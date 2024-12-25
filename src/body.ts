@@ -1,7 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { Issue } from './types.js'
-import { Octokit } from './github.js'
+import { Issue, Octokit } from './github.js'
 
 export const appendOrUpdateBody = async (octokit: Octokit, issue: Issue, content: string) => {
   let fetchedBody = issue.body
@@ -12,13 +11,13 @@ export const appendOrUpdateBody = async (octokit: Octokit, issue: Issue, content
       issue_number: issue.number,
     })
     fetchedBody = fetchedIssue.body || ''
-    core.info(`fetched the body of #${issue.number}`)
+    core.info(`Fetched the body of ${issue.owner}/${issue.repo}#${issue.number}`)
   }
 
   const marker = `<!-- issues-action/${github.context.workflow}/${github.context.job} -->`
   const body = computeBody(fetchedBody, content, marker)
   if (body === fetchedBody) {
-    core.info(`issue body is already desired state`)
+    core.info(`The issue body is already desired state`)
     return
   }
 
@@ -28,11 +27,11 @@ export const appendOrUpdateBody = async (octokit: Octokit, issue: Issue, content
     issue_number: issue.number,
     body,
   })
-  core.info(`updated the body of #${issue.number}`)
+  core.info(`Updated the body of issue ${issue.owner}/${issue.repo}#${issue.number}`)
 }
 
 export const computeBody = (fetchedBody: string, content: string, marker: string): string => {
-  // typically marker is a comment, so wrap with new lines to prevent corruption of markdown
+  // Typically marker is a comment, so wrap with new lines to prevent corruption of markdown
   marker = `\n${marker}\n`
 
   const elements = fetchedBody.split(marker)
