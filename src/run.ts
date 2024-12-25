@@ -1,7 +1,6 @@
 import * as core from '@actions/core'
 import { appendOrUpdateBody } from './body.js'
-import { Context, getOctokit, Issue, Octokit } from './github.js'
-import { RequestError } from '@octokit/request-error'
+import { catchStatusError, Context, getOctokit, Issue, Octokit } from './github.js'
 
 export type Inputs = {
   issueNumbers: number[]
@@ -83,23 +82,16 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
   }
 
   for (const labelName of r.removeLabels) {
-    try {
-      await octokit.rest.issues.removeLabel({
+    await catchStatusError(
+      404,
+      octokit.rest.issues.removeLabel({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         name: labelName,
-      })
-      core.info(`Removed label ${labelName} from ${issue.owner}/${issue.repo}#${issue.number}`)
-    } catch (error) {
-      if (error instanceof RequestError && error.status === 404) {
-        core.warning(
-          `Could not remove label ${labelName} from ${issue.owner}/${issue.repo}#${issue.number}: ${error.message}`,
-        )
-        continue
-      }
-      throw error
-    }
+      }),
+    )
+    core.info(`Removed label ${labelName} from ${issue.owner}/${issue.repo}#${issue.number}`)
   }
 
   if (r.postComment !== '') {
