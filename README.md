@@ -80,9 +80,10 @@ This action accepts the following inputs:
 
 | Name                    | Default        | Description                                                               |
 | ----------------------- | -------------- | ------------------------------------------------------------------------- |
+| `context`               | `false`        | Infer an issue or pull request(s) from the context                        |
+| `dry-run`               | `false`        | If true, run the action without making any changes                        |
 | `issue-numbers`         | -              | List of issue(s) or pull request(s), in multiline string                  |
 | `search-query`          | -              | If set, search the issues by the query                                    |
-| `context`               | `false`        | If true, infer an issue or pull request(s) from the context               |
 | `add-labels`            | -              | Label name(s) to add to issues or pull requests, in multiline string      |
 | `remove-labels`         | -              | Label name(s) to remove from issues or pull requests, in multiline string |
 | `post-comment`          | -              | Comment to create into issues or pull requests                            |
