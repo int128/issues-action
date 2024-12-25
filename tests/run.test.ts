@@ -15,7 +15,7 @@ const octokitMock = {
   },
 }
 
-jest.mock('../src/github', () => ({
+jest.mock('@actions/github', () => ({
   getOctokit: () => octokitMock,
 }))
 

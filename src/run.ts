@@ -52,7 +52,7 @@ const inferIssuesFromContext = async (octokit: Octokit, context: Context): Promi
     ]
   }
 
-  core.info(`List pull request(s) associated with ${context.sha}`)
+  core.info(`List the pull request(s) associated with ${context.sha}`)
   const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -64,7 +64,7 @@ const inferIssuesFromContext = async (octokit: Octokit, context: Context): Promi
     number: pr.number,
     body: pr.body || '',
   }))
-  core.info(`Using pull requests: ${issues.map((i) => `#${i.number}`).join(`, `)}`)
+  core.info(`Using the pull requests: ${issues.map((i) => `#${i.number}`).join(`, `)}`)
   return issues
 }
 
@@ -77,12 +77,12 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
       labels: r.addLabels,
     })
     core.info(
-      `Added label(s) to ${issue.owner}/${issue.repo}#${issue.number}: ${added.map((label) => label.name).join(', ')}`,
+      `Added the label(s) to ${issue.owner}/${issue.repo}#${issue.number}: ${added.map((label) => label.name).join(', ')}`,
     )
   }
 
   for (const labelName of r.removeLabels) {
-    await catchStatusError(
+    const removed = await catchStatusError(
       404,
       octokit.rest.issues.removeLabel({
         owner: issue.owner,
@@ -91,7 +91,11 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
         name: labelName,
       }),
     )
-    core.info(`Removed label ${labelName} from ${issue.owner}/${issue.repo}#${issue.number}`)
+    if (removed === undefined) {
+      core.info(`${issue.owner}/${issue.repo}#${issue.number} does not have the label ${labelName}`)
+      continue
+    }
+    core.info(`Removed the label ${labelName} from ${issue.owner}/${issue.repo}#${issue.number}`)
   }
 
   if (r.postComment !== '') {
