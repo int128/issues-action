@@ -56,7 +56,7 @@ jobs:
       - name: e2e-test / remove-labels
         uses: ./
         with:
-          issue-numbers: ${{ steps.list-open-pulls.outputs.result }}
+          search-query: repo:${{ github.repository }} is:pr is:open
           remove-labels: e2e-test
 
       - name: e2e-test / remove-labels ignores a label which is not attached

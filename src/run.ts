@@ -1,3 +1,4 @@
+import assert from 'assert'
 import * as core from '@actions/core'
 import { appendOrUpdateBody } from './body.js'
 import { Context, getOctokit, Octokit } from './github.js'
@@ -6,6 +7,7 @@ import { RequestError } from '@octokit/request-error'
 
 export type Inputs = {
   issueNumbers: number[]
+  searchQuery: string
   context: boolean
   dryRun: boolean
   token: string
@@ -23,6 +25,11 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const { owner, repo } = context.repo
   const issues = inputs.issueNumbers.map((number) => ({ owner, repo, number }))
 
+  if (inputs.searchQuery) {
+    const found = await searchIssues(octokit, inputs.searchQuery)
+    issues.push(...found)
+  }
+
   if (inputs.context) {
     const pulls = await inferPullRequestFromContext(octokit, context)
     issues.push(...pulls)
@@ -37,6 +44,31 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
       core.endGroup()
     }
   }
+}
+
+const searchIssues = async (octokit: Octokit, q: string): Promise<Issue[]> => {
+  core.info(`Searching issues by query: ${q}`)
+  const { data: issues } = await octokit.rest.search.issuesAndPullRequests({
+    q,
+    per_page: 100,
+  })
+  return issues.items.map((issue): Issue => {
+    const { owner, repo } = parseRepositoryURL(issue.repository_url)
+    return {
+      owner,
+      repo,
+      number: issue.number,
+    }
+  })
+}
+
+const parseRepositoryURL = (s: string) => {
+  const c = s.split('/')
+  const repo = c.pop()
+  const owner = c.pop()
+  assert(owner, `invalid repository URL ${s}`)
+  assert(repo, `invalid repository URL ${s}`)
+  return { owner, repo }
 }
 
 const inferPullRequestFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
