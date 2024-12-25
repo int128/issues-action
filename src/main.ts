@@ -1,16 +1,21 @@
 import * as core from '@actions/core'
 import { run } from './run.js'
+import { getContext } from './github.js'
 
 const main = async (): Promise<void> => {
-  await run({
-    issueNumbers: parseIssueNumbers(core.getMultilineInput('issue-numbers')),
-    context: core.getBooleanInput('context', { required: true }),
-    addLabels: core.getMultilineInput('add-labels'),
-    removeLabels: core.getMultilineInput('remove-labels'),
-    postComment: core.getInput('post-comment'),
-    appendOrUpdateBody: core.getInput('append-or-update-body'),
-    token: core.getInput('token', { required: true }),
-  })
+  await run(
+    {
+      issueNumbers: parseIssueNumbers(core.getMultilineInput('issue-numbers')),
+      context: core.getBooleanInput('context', { required: true }),
+      dryRun: core.getBooleanInput('dry-run', { required: true }),
+      addLabels: core.getMultilineInput('add-labels'),
+      removeLabels: core.getMultilineInput('remove-labels'),
+      postComment: core.getInput('post-comment'),
+      appendOrUpdateBody: core.getInput('append-or-update-body'),
+      token: core.getInput('token', { required: true }),
+    },
+    getContext(),
+  )
 }
 
 export const parseIssueNumbers = (a: string[]): number[] =>

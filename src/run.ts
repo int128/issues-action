@@ -1,12 +1,12 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import { appendOrUpdateBody } from './body.js'
-import { getOctokit, Octokit } from './github.js'
+import { Context, getOctokit, Octokit } from './github.js'
 import { Issue } from './types.js'
 
 export type Inputs = {
   issueNumbers: number[]
   context: boolean
+  dryRun: boolean
   token: string
 } & Operations
 
@@ -17,44 +17,48 @@ type Operations = {
   appendOrUpdateBody: string
 }
 
-export const run = async (inputs: Inputs): Promise<void> => {
+export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const octokit = getOctokit(inputs.token)
-  const { owner, repo } = github.context.repo
+  const { owner, repo } = context.repo
   const issues = inputs.issueNumbers.map((number) => ({ owner, repo, number }))
 
   if (inputs.context) {
-    const pulls = await inferPullRequestFromContext(octokit)
+    const pulls = await inferPullRequestFromContext(octokit, context)
     issues.push(...pulls)
   }
 
   for (const issue of issues) {
-    core.startGroup(`processing #${issue.number}`)
-    await processIssue(octokit, inputs, issue)
-    core.endGroup()
+    if (inputs.dryRun) {
+      core.info(`dry-run: Processing ${issue.owner}/${issue.repo}#${issue.number}`)
+    } else {
+      core.startGroup(`Processing ${issue.owner}/${issue.repo}#${issue.number}`)
+      await processIssue(octokit, inputs, issue)
+      core.endGroup()
+    }
   }
 }
 
-const inferPullRequestFromContext = async (octokit: Octokit): Promise<Issue[]> => {
-  if (Number.isSafeInteger(github.context.issue.number)) {
-    core.info(`inferred #${github.context.issue.number} from the current context`)
+const inferPullRequestFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
+  if (Number.isSafeInteger(context.issue.number)) {
+    core.info(`inferred #${context.issue.number} from the current context`)
     return [
       {
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        number: github.context.issue.number,
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        number: Number(context.issue.number),
       },
     ]
   }
 
-  core.info(`list pull request(s) associated with ${github.context.sha}`)
+  core.info(`list pull request(s) associated with ${context.sha}`)
   const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    commit_sha: github.context.sha,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    commit_sha: context.sha,
   })
   const issues = pulls.data.map((pr) => ({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     number: pr.number,
     body: pr.body || '',
   }))
