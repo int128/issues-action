@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { run } from './run.js'
-import { getContext } from './github.js'
+import { getContext, getOctokit } from './github.js'
 
 const main = async (): Promise<void> => {
   await run(
@@ -12,9 +12,9 @@ const main = async (): Promise<void> => {
       removeLabels: core.getMultilineInput('remove-labels'),
       postComment: core.getInput('post-comment'),
       appendOrUpdateBody: core.getInput('append-or-update-body'),
-      token: core.getInput('token', { required: true }),
     },
     getContext(),
+    getOctokit(core.getInput('token', { required: true })),
   )
 }
 

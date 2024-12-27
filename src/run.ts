@@ -1,12 +1,11 @@
 import * as core from '@actions/core'
 import { appendOrUpdateBody } from './body.js'
-import { catchStatusError, Context, getOctokit, Issue, Octokit } from './github.js'
+import { catchStatusError, Context, Issue, Octokit } from './github.js'
 
 export type Inputs = {
   issueNumbers: number[]
   context: boolean
   dryRun: boolean
-  token: string
 } & Operations
 
 type Operations = {
@@ -16,9 +15,7 @@ type Operations = {
   appendOrUpdateBody: string
 }
 
-export const run = async (inputs: Inputs, context: Context): Promise<void> => {
-  const octokit = getOctokit(inputs.token)
-
+export const run = async (inputs: Inputs, context: Context, octokit: Octokit): Promise<void> => {
   const issues = inputs.issueNumbers.map((number) => ({
     owner: context.repo.owner,
     repo: context.repo.repo,
