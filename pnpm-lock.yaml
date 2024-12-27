@@ -48,9 +48,6 @@ importers:
       jest-circus:
         specifier: 29.7.0
         version: 29.7.0
-      js-yaml:
-        specifier: 4.1.0
-        version: 4.1.0
       prettier:
         specifier: 3.4.2
         version: 3.4.2
