@@ -1,8 +1,6 @@
 import * as core from '@actions/core'
 import { appendOrUpdateBody } from './body.js'
-import { Context, getOctokit, Octokit } from './github.js'
-import { Issue } from './types.js'
-import { RequestError } from '@octokit/request-error'
+import { catchStatusError, Context, getOctokit, Issue, Octokit } from './github.js'
 
 export type Inputs = {
   issueNumbers: number[]
@@ -20,12 +18,15 @@ type Operations = {
 
 export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const octokit = getOctokit(inputs.token)
-  const { owner, repo } = context.repo
-  const issues = inputs.issueNumbers.map((number) => ({ owner, repo, number }))
+
+  const issues = inputs.issueNumbers.map((number) => ({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    number,
+  }))
 
   if (inputs.context) {
-    const pulls = await inferPullRequestFromContext(octokit, context)
-    issues.push(...pulls)
+    issues.push(...(await inferIssuesFromContext(octokit, context)))
   }
 
   for (const issue of issues) {
@@ -39,9 +40,9 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   }
 }
 
-const inferPullRequestFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
+const inferIssuesFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
   if (Number.isSafeInteger(context.issue.number)) {
-    core.info(`inferred #${context.issue.number} from the current context`)
+    core.info(`Inferred #${context.issue.number} from the current workflow run`)
     return [
       {
         owner: context.repo.owner,
@@ -51,7 +52,7 @@ const inferPullRequestFromContext = async (octokit: Octokit, context: Context): 
     ]
   }
 
-  core.info(`list pull request(s) associated with ${context.sha}`)
+  core.info(`List the pull request(s) associated with ${context.sha}`)
   const pulls = await octokit.rest.repos.listPullRequestsAssociatedWithCommit({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -63,7 +64,7 @@ const inferPullRequestFromContext = async (octokit: Octokit, context: Context): 
     number: pr.number,
     body: pr.body || '',
   }))
-  core.info(`inferred pull requests: ${issues.map((i) => `#${i.number}`).join(`, `)}`)
+  core.info(`Using the pull requests: ${issues.map((i) => `#${i.number}`).join(`, `)}`)
   return issues
 }
 
@@ -75,25 +76,26 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
       issue_number: issue.number,
       labels: r.addLabels,
     })
-    core.info(`added label(s) to #${issue.number}: ${added.map((label) => label.name).join(', ')}`)
+    core.info(
+      `Added the label(s) to ${issue.owner}/${issue.repo}#${issue.number}: ${added.map((label) => label.name).join(', ')}`,
+    )
   }
 
   for (const labelName of r.removeLabels) {
-    try {
-      const { data: removed } = await octokit.rest.issues.removeLabel({
+    const removed = await catchStatusError(
+      404,
+      octokit.rest.issues.removeLabel({
         owner: issue.owner,
         repo: issue.repo,
         issue_number: issue.number,
         name: labelName,
-      })
-      core.info(`removed label ${labelName} from #${issue.number}: ${removed.map((label) => label.name).join(', ')}`)
-    } catch (error) {
-      if (error instanceof RequestError && error.status === 404) {
-        core.warning(`could not remove label ${labelName} from #${issue.number}: ${error.message}`)
-        continue
-      }
-      throw error
+      }),
+    )
+    if (removed === undefined) {
+      core.info(`${issue.owner}/${issue.repo}#${issue.number} does not have the label ${labelName}`)
+      continue
     }
+    core.info(`Removed the label ${labelName} from ${issue.owner}/${issue.repo}#${issue.number}`)
   }
 
   if (r.postComment !== '') {
@@ -103,7 +105,7 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
       issue_number: issue.number,
       body: r.postComment,
     })
-    core.info(`create a comment to #${issue.number}: ${created.html_url}`)
+    core.info(`Created a comment to ${issue.owner}/${issue.repo}#${issue.number}: ${created.html_url}`)
   }
 
   if (r.appendOrUpdateBody) {
