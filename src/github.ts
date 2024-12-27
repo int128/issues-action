@@ -1,6 +1,5 @@
 import * as github from '@actions/github'
 import { retry } from '@octokit/plugin-retry'
-import { RequestError } from '@octokit/request-error'
 
 export type Octokit = ReturnType<typeof github.getOctokit>
 
@@ -10,7 +9,7 @@ export const catchStatusError = async <T>(status: number, promise: Promise<T>): 
   try {
     return await promise
   } catch (e: unknown) {
-    if (e instanceof RequestError && e.status === status) {
+    if (typeof e === 'object' && e !== null && 'status' in e && typeof e.status === 'number' && e.status === status) {
       return
     } else {
       throw e
