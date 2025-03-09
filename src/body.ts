@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
-import { Issue, Octokit } from './github.js'
+import { Context, Issue } from './github.js'
+import { Octokit } from '@octokit/action'
 
-export const appendOrUpdateBody = async (octokit: Octokit, issue: Issue, content: string) => {
+export const appendOrUpdateBody = async (issue: Issue, content: string, octokit: Octokit, context: Context) => {
   let fetchedBody = issue.body
   if (fetchedBody === undefined) {
     const { data: fetchedIssue } = await octokit.rest.issues.get({
@@ -14,7 +14,7 @@ export const appendOrUpdateBody = async (octokit: Octokit, issue: Issue, content
     core.info(`Fetched the body of ${issue.owner}/${issue.repo}#${issue.number}`)
   }
 
-  const marker = `<!-- issues-action/${github.context.workflow}/${github.context.job} -->`
+  const marker = `<!-- issues-action/${context.workflow}/${context.job} -->`
   const body = computeBody(fetchedBody, content, marker)
   if (body === fetchedBody) {
     core.info(`The issue body is already desired state`)

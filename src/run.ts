@@ -1,12 +1,12 @@
 import * as core from '@actions/core'
+import { Octokit } from '@octokit/action'
 import { appendOrUpdateBody } from './body.js'
-import { catchStatusError, Context, getOctokit, Issue, Octokit } from './github.js'
+import { catchStatusError, Context, Issue } from './github.js'
 
 export type Inputs = {
   issueNumbers: Set<number>
   context: boolean
   dryRun: boolean
-  token: string
 } & Operations
 
 type Operations = {
@@ -16,9 +16,7 @@ type Operations = {
   appendOrUpdateBody: string
 }
 
-export const run = async (inputs: Inputs, context: Context): Promise<void> => {
-  const octokit = getOctokit(inputs.token)
-
+export const run = async (inputs: Inputs, octokit: Octokit, context: Context): Promise<void> => {
   const issues = [...inputs.issueNumbers].map((number) => ({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -34,20 +32,30 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
       core.info(`dry-run: Processing ${issue.owner}/${issue.repo}#${issue.number}`)
     } else {
       core.startGroup(`Processing ${issue.owner}/${issue.repo}#${issue.number}`)
-      await processIssue(octokit, inputs, issue)
+      await processIssue(issue, inputs, octokit, context)
       core.endGroup()
     }
   }
 }
 
 const inferIssuesFromContext = async (octokit: Octokit, context: Context): Promise<Issue[]> => {
-  if (Number.isSafeInteger(context.issue.number)) {
-    core.info(`Inferred #${context.issue.number} from the current workflow run`)
+  if ('issue' in context.payload) {
+    core.info(`Inferred #${context.payload.issue.number} from the issue event`)
     return [
       {
         owner: context.repo.owner,
         repo: context.repo.repo,
-        number: Number(context.issue.number),
+        number: context.payload.issue.number,
+      },
+    ]
+  }
+  if ('pull_request' in context.payload) {
+    core.info(`Inferred #${context.payload.pull_request.number} from the pull_request event`)
+    return [
+      {
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        number: context.payload.pull_request.number,
       },
     ]
   }
@@ -68,7 +76,7 @@ const inferIssuesFromContext = async (octokit: Octokit, context: Context): Promi
   return issues
 }
 
-const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Promise<void> => {
+const processIssue = async (issue: Issue, r: Operations, octokit: Octokit, context: Context): Promise<void> => {
   if (r.addLabels.size > 0) {
     const { data: added } = await octokit.rest.issues.addLabels({
       owner: issue.owner,
@@ -109,6 +117,6 @@ const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Prom
   }
 
   if (r.appendOrUpdateBody) {
-    await appendOrUpdateBody(octokit, issue, r.appendOrUpdateBody)
+    await appendOrUpdateBody(issue, r.appendOrUpdateBody, octokit, context)
   }
 }

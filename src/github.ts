@@ -1,9 +1,42 @@
-import * as github from '@actions/github'
+import assert from 'assert'
+import * as fs from 'fs/promises'
 import { retry } from '@octokit/plugin-retry'
+import { Octokit } from '@octokit/action'
+import { WebhookEvent } from '@octokit/webhooks-types'
 
-export type Octokit = ReturnType<typeof github.getOctokit>
+export const getOctokit = () => new (Octokit.plugin(retry))()
 
-export const getOctokit = (token: string): Octokit => github.getOctokit(token, {}, retry)
+export type Context = {
+  repo: {
+    owner: string
+    repo: string
+  }
+  sha: string
+  workflow: string
+  job: string
+  payload: WebhookEvent
+}
+
+export const getContext = async (): Promise<Context> => {
+  // https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
+  return {
+    repo: getRepo(),
+    sha: getEnv('GITHUB_SHA'),
+    workflow: getEnv('GITHUB_WORKFLOW'),
+    job: getEnv('GITHUB_JOB'),
+    payload: JSON.parse(await fs.readFile(getEnv('GITHUB_EVENT_PATH'), 'utf-8')) as WebhookEvent,
+  }
+}
+
+const getRepo = () => {
+  const [owner, repo] = getEnv('GITHUB_REPOSITORY').split('/')
+  return { owner, repo }
+}
+
+const getEnv = (name: string): string => {
+  assert(process.env[name], `${name} is required`)
+  return process.env[name]
+}
 
 export const catchStatusError = async <T>(status: number, promise: Promise<T>): Promise<T | undefined> => {
   try {
@@ -16,19 +49,6 @@ export const catchStatusError = async <T>(status: number, promise: Promise<T>): 
     }
   }
 }
-
-export type Context = {
-  sha: string
-  repo: {
-    owner: string
-    repo: string
-  }
-  issue: {
-    number?: number
-  }
-}
-
-export const getContext = (): Context => github.context
 
 export type Issue = {
   owner: string
