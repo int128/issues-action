@@ -3,15 +3,15 @@ import { appendOrUpdateBody } from './body.js'
 import { catchStatusError, Context, getOctokit, Issue, Octokit } from './github.js'
 
 export type Inputs = {
-  issueNumbers: number[]
+  issueNumbers: Set<number>
   context: boolean
   dryRun: boolean
   token: string
 } & Operations
 
 type Operations = {
-  addLabels: string[]
-  removeLabels: string[]
+  addLabels: Set<string>
+  removeLabels: Set<string>
   postComment: string
   appendOrUpdateBody: string
 }
@@ -19,7 +19,7 @@ type Operations = {
 export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const octokit = getOctokit(inputs.token)
 
-  const issues = inputs.issueNumbers.map((number) => ({
+  const issues = [...inputs.issueNumbers].map((number) => ({
     owner: context.repo.owner,
     repo: context.repo.repo,
     number,
@@ -69,12 +69,12 @@ const inferIssuesFromContext = async (octokit: Octokit, context: Context): Promi
 }
 
 const processIssue = async (octokit: Octokit, r: Operations, issue: Issue): Promise<void> => {
-  if (r.addLabels.length > 0) {
+  if (r.addLabels.size > 0) {
     const { data: added } = await octokit.rest.issues.addLabels({
       owner: issue.owner,
       repo: issue.repo,
       issue_number: issue.number,
-      labels: r.addLabels,
+      labels: [...r.addLabels],
     })
     core.info(
       `Added the label(s) to ${issue.owner}/${issue.repo}#${issue.number}: ${added.map((label) => label.name).join(', ')}`,
