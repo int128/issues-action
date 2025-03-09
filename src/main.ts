@@ -5,11 +5,11 @@ import { getContext } from './github.js'
 const main = async (): Promise<void> => {
   await run(
     {
-      issueNumbers: parseIssueNumbers(core.getMultilineInput('issue-numbers')),
+      issueNumbers: new Set(parseIssueNumbers(core.getMultilineInput('issue-numbers'))),
       context: core.getBooleanInput('context', { required: true }),
       dryRun: core.getBooleanInput('dry-run', { required: true }),
-      addLabels: core.getMultilineInput('add-labels'),
-      removeLabels: core.getMultilineInput('remove-labels'),
+      addLabels: new Set(core.getMultilineInput('add-labels')),
+      removeLabels: new Set(core.getMultilineInput('remove-labels')),
       postComment: core.getInput('post-comment'),
       appendOrUpdateBody: core.getInput('append-or-update-body'),
       token: core.getInput('token', { required: true }),
