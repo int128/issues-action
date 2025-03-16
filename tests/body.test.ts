@@ -1,26 +1,29 @@
-import { describe, test, expect } from 'vitest'
-import { computeBody } from '../src/body.js'
+import { describe, expect, it } from 'vitest'
+import { insertContentIntoBody } from '../src/body.js'
 
 const marker = '<!-- marker -->'
 
-describe('it sholud replace content in body', () => {
-  test('if body is empty, it should return content', () => {
-    const content = `foo\nbar`
-    expect(computeBody('', content, marker)).toBe(`\
+describe('insertContentIntoBody', () => {
+  describe('when the body is empty', () => {
+    it('returns a wrapped content', () => {
+      const content = `foo\nbar`
+      expect(insertContentIntoBody('', content, marker)).toBe(`\
 
 <!-- marker -->
 foo
 bar
 <!-- marker -->
 `)
+    })
   })
 
-  test('if body is something, it should append content', () => {
-    const content = `foo\nbar`
-    const before = `\
+  describe('when the body has a string', () => {
+    it('appends the content', () => {
+      const content = `foo\nbar`
+      const before = `\
 foo
 bar`
-    const after = `\
+      const after = `\
 foo
 bar
 <!-- marker -->
@@ -28,86 +31,95 @@ foo
 bar
 <!-- marker -->
 `
-    expect(computeBody(before, content, marker)).toBe(after)
+      expect(insertContentIntoBody(before, content, marker)).toBe(after)
+    })
   })
 
-  test('if body has marker, it should replace content', () => {
-    const content = `foo\nbar`
-    const before = `\
+  describe('when the body has a marker', () => {
+    it('replaces the content', () => {
+      const content = `foo\nbar`
+      const before = `\
 hello
 <!-- marker -->
 foo
 <!-- marker -->
 bar`
-    const after = `\
+      const after = `\
 hello
 <!-- marker -->
 foo
 bar
 <!-- marker -->
 bar`
-    expect(computeBody(before, content, marker)).toBe(after)
+      expect(insertContentIntoBody(before, content, marker)).toBe(after)
+    })
   })
 
-  test('if body has marker at first, it should replace content', () => {
-    const content = `foo\nbar`
-    const before = `\
+  describe('when the body has a marker at the first', () => {
+    it('replaces the content', () => {
+      const content = `foo\nbar`
+      const before = `\
 
 <!-- marker -->
 foo
 <!-- marker -->
 bar`
-    const after = `\
+      const after = `\
 
 <!-- marker -->
 foo
 bar
 <!-- marker -->
 bar`
-    expect(computeBody(before, content, marker)).toBe(after)
+      expect(insertContentIntoBody(before, content, marker)).toBe(after)
+    })
   })
 
-  test('if body has marker at last, it should replace content', () => {
-    const content = `foo\nbar`
-    const before = `\
+  describe('when the body has a marker at the last', () => {
+    it('replaces the content', () => {
+      const content = `foo\nbar`
+      const before = `\
 hello
 <!-- marker -->
 foo
 <!-- marker -->
 `
-    const after = `\
+      const after = `\
 hello
 <!-- marker -->
 foo
 bar
 <!-- marker -->
 `
-    expect(computeBody(before, content, marker)).toBe(after)
+      expect(insertContentIntoBody(before, content, marker)).toBe(after)
+    })
   })
-})
 
-test('it should replace body multiple times consistently', () => {
-  let body = `hello`
-  body = computeBody(body, 'foo', marker)
-  expect(body).toBe(`\
+  describe('when the body has multiple markers', () => {
+    it('replaces the content consistently', () => {
+      let body = `hello`
+      body = insertContentIntoBody(body, 'foo', marker)
+      expect(body).toBe(`\
 hello
 <!-- marker -->
 foo
 <!-- marker -->
 `)
-  body = computeBody(body, 'foo\nbar', marker)
-  expect(body).toBe(`\
+      body = insertContentIntoBody(body, 'foo\nbar', marker)
+      expect(body).toBe(`\
 hello
 <!-- marker -->
 foo
 bar
 <!-- marker -->
 `)
-  body = computeBody(body, 'foo', marker)
-  expect(body).toBe(`\
+      body = insertContentIntoBody(body, 'foo', marker)
+      expect(body).toBe(`\
 hello
 <!-- marker -->
 foo
 <!-- marker -->
 `)
+    })
+  })
 })

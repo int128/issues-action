@@ -3,20 +3,20 @@ import { Context, Issue } from './github.js'
 import { Octokit } from '@octokit/action'
 
 export const appendOrUpdateBody = async (issue: Issue, content: string, octokit: Octokit, context: Context) => {
-  let fetchedBody = issue.body
-  if (fetchedBody === undefined) {
+  let currentBody = issue.body
+  if (currentBody === undefined) {
     const { data: fetchedIssue } = await octokit.rest.issues.get({
       owner: issue.owner,
       repo: issue.repo,
       issue_number: issue.number,
     })
-    fetchedBody = fetchedIssue.body || ''
+    currentBody = fetchedIssue.body || ''
     core.info(`Fetched the body of ${issue.owner}/${issue.repo}#${issue.number}`)
   }
 
   const marker = `<!-- issues-action/${context.workflow}/${context.job} -->`
-  const body = computeBody(fetchedBody, content, marker)
-  if (body === fetchedBody) {
+  const newBody = insertContentIntoBody(currentBody, content, marker)
+  if (newBody === currentBody) {
     core.info(`The issue body is already desired state`)
     return
   }
@@ -25,24 +25,25 @@ export const appendOrUpdateBody = async (issue: Issue, content: string, octokit:
     owner: issue.owner,
     repo: issue.repo,
     issue_number: issue.number,
-    body,
+    body: newBody,
   })
   core.info(`Updated the body of issue ${issue.owner}/${issue.repo}#${issue.number}`)
 }
 
-export const computeBody = (fetchedBody: string, content: string, marker: string): string => {
+export const insertContentIntoBody = (body: string, content: string, marker: string): string => {
   // Typically marker is a comment, so wrap with new lines to prevent corruption of markdown
   marker = `\n${marker}\n`
 
-  const elements = fetchedBody.split(marker)
+  const elements = body.split(marker)
   if (elements.length === 1) {
-    return [elements[0], marker, content, marker].join('')
+    const firstBlock = elements[0]
+    return [firstBlock, marker, content, marker].join('')
   }
   if (elements.length > 2) {
-    const first = elements[0]
+    const firstBlock = elements[0]
     elements.shift()
     elements.shift()
-    return [first, marker, content, marker, ...elements].join('')
+    return [firstBlock, marker, content, marker, ...elements].join('')
   }
-  return fetchedBody
+  return body
 }
