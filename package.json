@@ -22,11 +22,11 @@
     "eslint": "9.22.0",
     "eslint-plugin-prettier": "5.2.3",
     "jest-circus": "29.7.0",
-    "pnpm": "10.6.3",
+    "pnpm": "10.6.4",
     "prettier": "3.5.3",
     "typescript": "5.8.2",
     "typescript-eslint": "8.26.1",
     "vitest": "3.0.8"
   },
-  "packageManager": "pnpm@10.6.3"
+  "packageManager": "pnpm@10.6.4"
 }
