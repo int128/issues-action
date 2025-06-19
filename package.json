@@ -21,7 +21,7 @@
     "@vitest/eslint-plugin": "1.2.7",
     "eslint": "9.29.0",
     "eslint-plugin-prettier": "5.5.0",
-    "jest-circus": "30.0.1",
+    "jest-circus": "30.0.2",
     "pnpm": "10.12.1",
     "prettier": "3.5.3",
     "typescript": "5.8.3",
