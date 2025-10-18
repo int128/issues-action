@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
-import { run } from './run.js'
 import { getContext, getOctokit } from './github.js'
+import { run } from './run.js'
 
 const main = async (): Promise<void> => {
   await run(
@@ -20,7 +20,7 @@ const main = async (): Promise<void> => {
 
 export const parseIssueNumbers = (a: string[]): number[] =>
   a.map((e) => {
-    const n = Number.parseInt(e)
+    const n = Number.parseInt(e, 10)
     if (!Number.isSafeInteger(n)) {
       throw new Error(`invalid issue number: "${e}"`)
     }
