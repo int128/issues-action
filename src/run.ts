@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
-import { Octokit } from '@octokit/action'
+import type { Octokit } from '@octokit/action'
 import { appendOrUpdateBody } from './body.js'
-import { catchStatusError, Context, Issue } from './github.js'
+import { type Context, catchStatusError, type Issue } from './github.js'
 
 export type Inputs = {
   issueNumbers: Set<number>

@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
-import { Context, Issue } from './github.js'
-import { Octokit } from '@octokit/action'
+import type { Octokit } from '@octokit/action'
+import type { Context, Issue } from './github.js'
 
 export const appendOrUpdateBody = async (issue: Issue, content: string, octokit: Octokit, context: Context) => {
   let currentBody = issue.body
