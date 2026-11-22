@@ -7,11 +7,11 @@ inputs:
   context:
     description: infer an issue or pull request(s) from the context
     required: true
-    default: 'false'
+    default: "false"
   dry-run:
     description: If true, run the action without making any changes
     required: false
-    default: 'false'
+    default: "false"
   add-labels:
     description: label name(s) to add to issues or pull requests, in multi-line format
     required: false
@@ -29,5 +29,5 @@ inputs:
     required: true
     default: ${{ github.token }}
 runs:
-  using: 'node24'
-  main: 'dist/index.js'
+  using: "node24"
+  main: "dist/index.js"
